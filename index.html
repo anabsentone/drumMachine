@@ -34,12 +34,12 @@
         </style>
         
         <script>
+            var numBeats = 8;
             function generateBeatgrid() {
-                var numBeats = 4;
-                
                 var tableHeaderRow = document.getElementById('beatgrid').getElementsByTagName('thead')[0].getElementsByTagName('tr')[0];
                 var firstInstrumentRow = document.getElementById('beatgrid').getElementsByTagName('tbody')[0].getElementsByTagName('tr')[0];
                 var secondInstrumentRow = document.getElementById('beatgrid').getElementsByTagName('tbody')[0].getElementsByTagName('tr')[1];
+                var thirdInstrumentRow = document.getElementById('beatgrid').getElementsByTagName('tbody')[0].getElementsByTagName('tr')[2];
                 for (var i = 1; i < numBeats + 1; i++) {
                     var newTh;
                     var newTd;
@@ -70,31 +70,46 @@
                         newTh.innerText = charA;
                         tableHeaderRow.appendChild(newTh);
                         
-                        newTd = document.createElement('td');
-                        newInput = document.createElement('input');
-                        newInput.id = i + charB + 'HInput';
-                        newInput.class = 'form-check-input';
-                        newInput.type = 'checkbox';
-                        newTd.appendChild(newInput);
-                        firstInstrumentRow.appendChild(newTd);
-                        
-                        newTd = document.createElement('td');
-                        newInput = document.createElement('input');
-                        newInput.id = i + charB + 'SInput';
-                        newInput.class = 'form-check-input';
-                        newInput.type = 'checkbox';
-                        newTd.appendChild(newInput);
-                        secondInstrumentRow.appendChild(newTd);
+                        for (var k = 0; k < 3; k++) {
+                            newTd = document.createElement('td');
+                            newInput = document.createElement('input');
+                            switch (k) {
+                                case 0:
+                                    newInput.id = i + charB + 'HInput';
+                                    break;
+                                case 1:
+                                    newInput.id = i + charB + 'SInput';
+                                    break;
+                                case 2:
+                                    newInput.id = i + charB + 'KInput';
+                                    break;
+                            }
+                            newInput.class = 'form-check-input';
+                            newInput.type = 'checkbox';
+                            newTd.appendChild(newInput);
+                            switch (k) {
+                                case 0:
+                                    firstInstrumentRow.appendChild(newTd);
+                                    break;
+                                case 1:
+                                    secondInstrumentRow.appendChild(newTd);
+                                    break;
+                                case 2:
+                                    thirdInstrumentRow.appendChild(newTd);
+                                    break;
+                            }
+                        }
                     }                    
                 }
             }
             
             var now;
             var BPM = 100;
-            var increment = (60 / BPM) / 4;
+            var increment = (60 / BPM) / 4; // number of seconds between each increment 1-E-&-A
             
-            const hihatSample = new Tone.Player('RD_C_HH_7.wav').toDestination();
-            const snareSample = new Tone.Player('RD_S_P_10.wav').toDestination();
+            const hihatSample = new Tone.Player('https://anabsentone.github.io/drumMachine/RD_C_HH_7.wav').toDestination();
+            const snareSample = new Tone.Player('https://anabsentone.github.io/drumMachine/RD_S_P_10.wav').toDestination();
+            const kickSample = new Tone.Player('https://anabsentone.github.io/drumMachine/RD_K_6.wav').toDestination();
             
             function updateBPM() {
                 document.getElementById('BPMInputLabel').innerText = document.getElementById('BPMInput').value + ' BPM';
@@ -110,17 +125,33 @@
                 document.getElementById('stopButtonDiv').style.display = 'initial';
                 document.getElementById('BPMInput').disabled = true;
                 
-                now = Tone.now();
-                // synth = new Tone.PolySynth(Tone.Synth).toDestination();
-                // synth.triggerAttack("D4", now);
-                // synth.triggerAttack("F4", now + 0.5);
-                // synth.triggerAttack("A4", now + 1);
-                // synth.triggerAttack("C5", now + 1.5);
-                // synth.triggerAttack("E5", now + 2);
-                // synth.triggerRelease(["D4", "F4", "A4", "C5", "E5"], now + 4);
-                
-                for (var i = 0; i < 5; i++) {
-                    
+                now = Tone.now();                
+                var char;
+                var counter = 0;
+                for (var i = 1; i < numBeats + 1; i++) {
+                    for (var j = 0; j < 4; j++) {
+                        switch (j) {
+                            case 0:
+                                char = '#';
+                                break;
+                            case 1:
+                                char = 'E';
+                                break;
+                            case 2:
+                                char = '&';
+                                break;
+                            case 3:
+                                char = 'A';
+                                break;
+                        }
+                        if (document.getElementById(i + char + 'HInput').checked) {
+                            hihatSample.start(now + counter * increment);
+                        }
+                        if (document.getElementById(i + char + 'SInput').checked) {
+                            snareSample.start(now + counter * increment);
+                        }
+                        counter++;
+                    }
                 }
             }
             
@@ -160,6 +191,9 @@
                     </tr>
                     <tr>
                         <th scope='row'>Snare</th>
+                    </tr>
+                    <tr>
+                        <th scope='row'>Kick</th>
                     </tr>
                 </tbody>
             </table>
