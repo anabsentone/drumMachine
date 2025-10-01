@@ -107,8 +107,13 @@
             var BPM = 100;
             var increment = (60 / BPM) / 4; // number of seconds between each increment 1-E-&-A
             
+            const players = new Tone.Players({
+                hihat: 'https://anabsentone.github.io/drumMachine/RD_C_HH_7.wav',
+                snare: 'https://anabsentone.github.io/drumMachine/RD_S_P_10.wav',
+                kick: 'https://anabsentone.github.io/drumMachine/RD_K_6.wav'
+            }).toDestination();
             const hihatSample = new Tone.Player('https://anabsentone.github.io/drumMachine/RD_C_HH_7.wav').toDestination();
-            const snareSample = new Tone.Player('https://anabsentone.github.io/drumMachine/RD_S_P_10.wav').toDestination();
+            const snareSample = new Tone.Player('https://anabsentone.github.io/drumMachine/RD_S_P_10.wav').toDestination(); // need better snare
             const kickSample = new Tone.Player('https://anabsentone.github.io/drumMachine/RD_K_6.wav').toDestination();
             
             function updateBPM() {
@@ -118,6 +123,23 @@
                 increment = (60 / BPM) / 4;
                 console.log(BPM);
                 console.log(increment);
+            }
+            
+            function updateVolume(instrument) {
+                switch (instrument) {
+                    case 'hihat':
+                        document.getElementById('hihatVolumeInputLabel').innerText = document.getElementById('hihatVolumeInput').value;
+                        hihatSample.volume.value = document.getElementById('hihatVolumeInput').value;
+                        break;
+                    case 'snare':
+                        document.getElementById('snareVolumeInputLabel').innerText = document.getElementById('snareVolumeInput').value;
+                        snareSample.volume.value = document.getElementById('snareVolumeInput').value;
+                        break;
+                    case 'kick':
+                        document.getElementById('kickVolumeInputLabel').innerText = document.getElementById('kickVolumeInput').value;
+                        kickSample.volume.value = document.getElementById('kickVolumeInput').value;
+                        break;
+                }
             }
             
             function play() {
@@ -150,6 +172,9 @@
                         if (document.getElementById(i + char + 'SInput').checked) {
                             snareSample.start(now + counter * increment);
                         }
+                        if (document.getElementById(i + char + 'KInput').checked) {
+                            kickSample.start(now + counter * increment);
+                        }
                         counter++;
                     }
                 }
@@ -159,6 +184,10 @@
                 document.getElementById('playButtonDiv').style.display = 'initial';
                 document.getElementById('stopButtonDiv').style.display = 'none';
                 document.getElementById('BPMInput').disabled = false;
+                
+                hihatSample.stop();
+                snareSample.stop();
+                kickSample.stop();
             }
         </script>
     </head>
@@ -187,13 +216,29 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <th scope='row'>Hi-Hat</th>
+                        <th scope='row'>
+                            Hi-Hat
+                            <div id='hihatVolumeInputDiv'>
+                                <label id='hihatVolumeInputLabel' for='hihatVolumeInput' class='form-label'>0</label>
+                                <input id='hihatVolumeInput' type='range' class='form-range' min='-10' max='10' value='0' oninput='updateVolume("hihat");'>
+                            </div>
+                        </th>
                     </tr>
                     <tr>
-                        <th scope='row'>Snare</th>
+                        <th scope='row'>
+                            Snare
+                            <div id='snareVolumeInputDiv'>
+                                <label id='snareVolumeInputLabel' for='snareVolumeInput' class='form-label'>0</label>
+                                <input id='snareVolumeInput' type='range' class='form-range' min='-10' max='10' value='0' oninput='updateVolume("snare");'>
+                            </div>
+                        </th>
                     </tr>
                     <tr>
-                        <th scope='row'>Kick</th>
+                        <th scope='row'>
+                            Kick
+                            <label id='kickVolumeInputLabel' for='kickVolumeInput' class='form-label'>0</label>
+                            <input id='kickVolumeInput' type='range' class='form-range' min='-10' max='10' value='0' oninput='updateVolume("kick");'>
+                        </th>
                     </tr>
                 </tbody>
             </table>
